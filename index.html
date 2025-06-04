@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    form {
+      max-width: 400px;
+      margin: 0 auto 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    input, button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    ul {
+      max-width: 500px;
+      margin: auto;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      background: #fff;
+      margin-bottom: 10px;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Patient Management</h1>
+
+  <form id="patientForm">
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="number" id="age" placeholder="Age" required />
+    <input type="text" id="condition" placeholder="Condition" required />
+    <button type="submit">Add Patient</button>
+  </form>
+
+  <h2>Patient List</h2>
+  <ul id="patientList"></ul>
+
+  <script>
+    async function loadPatients() {
+      try {
+        const res = await fetch('http://localhost:3000/patients');
+        const data = await res.json();
+        const list = document.getElementById('patientList');
+        list.innerHTML = '';
+        data.forEach(p => {
+          const item = document.createElement('li');
+          item.textContent = `${p.name} (Age: ${p.age}) - ${p.condition}`;
+          list.appendChild(item);
+        });
+      } catch (error) {
+        console.error("Failed to load patients:", error);
+      }
+    }
+
+    document.getElementById('patientForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const age = document.getElementById('age').value;
+      const condition = document.getElementById('condition').value;
+
+      await fetch('http://localhost:3000/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, age, condition })
+      });
+
+      document.getElementById('patientForm').reset();
+      loadPatients();
+    });
+
+    loadPatients();
+  </script>
+</body>
+</html>
